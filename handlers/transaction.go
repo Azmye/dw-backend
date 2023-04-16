@@ -56,9 +56,6 @@ func (h *handlerTransaction) CreateTransaction(c echo.Context) error {
 	userLogin := c.Get("userLogin")
 	userId := userLogin.(jwt.MapClaims)["id"].(float64)
 
-	request.UserID = int(userId)
-	request.Status = "pending"
-
 	validation := validator.New()
 	err := validation.Struct(request)
 	if err != nil {
@@ -76,11 +73,11 @@ func (h *handlerTransaction) CreateTransaction(c echo.Context) error {
 	// data form pattern submit to pattern entity db Transaction
 	Transactions := models.Transaction{
 		ID:        transactionId,
-		StartDate: request.StartDate,
-		EndDate:   request.EndDate,
+		StartDate: time.Now(),
+		EndDate:   time.Now().Add(time.Hour * 24 * time.Duration(30)),
 		UserID:    int(userId),
-		Attach:    request.Attach,
-		Status:    request.Status,
+		Price:     request.Price,
+		Status:    "pending",
 	}
 
 	dataTransactions, err := h.TransactionRepository.CreateTransaction(Transactions)
