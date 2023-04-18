@@ -48,12 +48,12 @@ func (r *repository) UpdateTransaction(status string, orderId int) (models.Trans
 	var transaction models.Transaction
 	r.db.First(&transaction, orderId)
 
-	// if status != transaction.Status && status == "success" {
-	// 	var product models.Product
-	// 	r.db.First(&product, transaction.Product.ID)
-	// 	product.Qty = product.Qty - 1
-	// 	r.db.Save(&product)
-	// }
+	if status != transaction.Status && status == "success" {
+		var user models.User
+		r.db.First(&user, transaction.User.ID)
+		user.Subscribe = user.Subscribe == true
+		r.db.Save(&user)
+	}
 
 	transaction.Status = status
 	err := r.db.Save(&transaction).Error

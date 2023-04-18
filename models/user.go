@@ -9,7 +9,7 @@ type User struct {
 	Phone     string `json:"phone" form:"phone" gorm:"type: varchar(255)"`
 	Address   string `json:"address" form:"address" gorm:"type:text"`
 	Role      string `json:"roles" form:"roles" gorm:"type: varchar(255)"`
-	Subscribe bool   `json:"subscribe" gorm:"type: varchar(255)"`
+	Subscribe bool   `json:"subscribe"`
 }
 
 type UserResponse struct {

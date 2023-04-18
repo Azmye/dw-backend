@@ -4,8 +4,8 @@ import "time"
 
 type Transaction struct {
 	ID        int       `json:"id" gorm:"primary_key:auto_increment"`
-	StartDate time.Time `json:"startDate" gorm:"type: varchar(255)"`
-	EndDate   time.Time `json:"endDate" gorm:"type: varchar(255)"`
+	StartDate time.Time `json:"startDate" `
+	EndDate   time.Time `json:"endDate" `
 	User      User      `json:"user"`
 	UserID    int       `json:"userID"`
 	Price     int       `json:"price"`
