@@ -109,20 +109,21 @@ func (h *handlerFilm) CreateFilm(c echo.Context) error {
 }
 
 func (h *handlerFilm) UpdateFilm(c echo.Context) error {
-	request := new(filmdto.UpdateFilmRequest)
-	if err := c.Bind(&request); err != nil {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
-	}
-
 	id, _ := strconv.Atoi(c.Param("id"))
 	film, err := h.FilmRepository.GetFilm(id)
+	dataFile := c.Get("dataFile").(string)
+	fmt.Println("this is data file", dataFile)
 
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
-	}
+	year, _ := strconv.Atoi(c.FormValue("year"))
+	category_id, _ := strconv.Atoi(c.FormValue("category_id"))
 
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
+	request := filmdto.UpdateFilmRequest{
+		Title:         c.FormValue("title"),
+		ThumbnailFilm: dataFile,
+		Year:          year,
+		CategoryID:    category_id,
+		Link:          c.FormValue("link"),
+		Description:   c.FormValue("desc"),
 	}
 
 	if request.Title != "" {
