@@ -28,7 +28,7 @@ func (r *repository) FindFilm() ([]models.Film, error) {
 }
 func (r *repository) FindFilmMovie() ([]models.Film, error) {
 	var films []models.Film
-	err := r.db.Preload("Category").Find(&films, "category_id = ?", 2).Error
+	err := r.db.Preload("Category").Find(&films, "category_id = ?", 3).Error
 
 	return films, err
 }
