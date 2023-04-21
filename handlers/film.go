@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"context"
 	filmdto "dumbmerch/dto/film"
 	dto "dumbmerch/dto/result"
 	"fmt"
+	"os"
 
 	"dumbmerch/models"
 
@@ -11,6 +13,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
@@ -30,29 +34,25 @@ func (h *handlerFilm) FindFilm(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 	}
-	for i, p := range films {
-		films[i].ThumbnailFilm = path_file + p.ThumbnailFilm
-	}
+
 	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: films})
 }
+
 func (h *handlerFilm) FindFilmMovie(c echo.Context) error {
 	films, err := h.FilmRepository.FindFilmMovie()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 	}
-	for i, p := range films {
-		films[i].ThumbnailFilm = path_file + p.ThumbnailFilm
-	}
+
 	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: films})
 }
+
 func (h *handlerFilm) FindFilmSeries(c echo.Context) error {
 	films, err := h.FilmRepository.FindFilmSeries()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 	}
-	for i, p := range films {
-		films[i].ThumbnailFilm = path_file + p.ThumbnailFilm
-	}
+
 	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: films})
 }
 
@@ -63,7 +63,7 @@ func (h *handlerFilm) GetFilm(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 	}
-	film.ThumbnailFilm = path_file + film.ThumbnailFilm
+
 	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: film})
 }
 
@@ -88,11 +88,24 @@ func (h *handlerFilm) CreateFilm(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 	}
+	var ctx = context.Background()
+	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+	var API_KEY = os.Getenv("API_KEY")
+	var API_SECRET = os.Getenv("API_SECRET")
 
+	// Add your Cloudinary credentials ...
+	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+
+	// Upload file to Cloudinary ...
+	resp, err := cld.Upload.Upload(ctx, dataFile, uploader.UploadParams{Folder: "dumbflix-img"})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	// data form pattern submit to pattern entity db film
 	films := models.Film{
 		Title:         request.Title,
-		ThumbnailFilm: request.ThumbnailFilm,
+		ThumbnailFilm: resp.SecureURL,
 		Year:          request.Year,
 		Category:      request.Category,
 		CategoryID:    request.CategoryID,
