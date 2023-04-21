@@ -126,13 +126,27 @@ func (h *handlerFilm) UpdateFilm(c echo.Context) error {
 	film, err := h.FilmRepository.GetFilm(id)
 	dataFile := c.Get("dataFile").(string)
 	fmt.Println("this is data file", dataFile)
+	var ctx = context.Background()
+	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+	var API_KEY = os.Getenv("API_KEY")
+	var API_SECRET = os.Getenv("API_SECRET")
+
+	// Add your Cloudinary credentials ...
+	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+
+	// Upload file to Cloudinary ...
+	resp, err := cld.Upload.Upload(ctx, dataFile, uploader.UploadParams{Folder: "dumbflix-img"})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 	year, _ := strconv.Atoi(c.FormValue("year"))
 	category_id, _ := strconv.Atoi(c.FormValue("category_id"))
 
 	request := filmdto.UpdateFilmRequest{
 		Title:         c.FormValue("title"),
-		ThumbnailFilm: dataFile,
+		ThumbnailFilm: resp.SecureURL,
 		Year:          year,
 		CategoryID:    category_id,
 		Link:          c.FormValue("link"),

@@ -1,14 +1,18 @@
 package handlers
 
 import (
+	"context"
 	episodedto "dumbmerch/dto/episode"
 	dto "dumbmerch/dto/result"
 	"dumbmerch/models"
 	"dumbmerch/repositories"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
@@ -28,9 +32,7 @@ func (h *handlerEpisode) FindEpisode(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 	}
-	for i, p := range Episode {
-		Episode[i].ThumbnailFilm = path_file + p.ThumbnailFilm
-	}
+
 	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: Episode})
 }
 
@@ -40,9 +42,7 @@ func (h *handlerEpisode) FindEpisodeByFilm(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 	}
-	for i, p := range Episode {
-		Episode[i].ThumbnailFilm = path_file + p.ThumbnailFilm
-	}
+
 	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: Episode})
 }
 
@@ -92,11 +92,25 @@ func (h *handlerEpisode) CreateEpisode(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 	}
+	var ctx = context.Background()
+	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+	var API_KEY = os.Getenv("API_KEY")
+	var API_SECRET = os.Getenv("API_SECRET")
+
+	// Add your Cloudinary credentials ...
+	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+
+	// Upload file to Cloudinary ...
+	resp, err := cld.Upload.Upload(ctx, dataFile, uploader.UploadParams{Folder: "dumbflix-img"})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 	// data form pattern submit to pattern entity db film
 	Episode := models.Episode{
 		Title:         request.Title,
-		ThumbnailFilm: request.ThumbnailFilm,
+		ThumbnailFilm: resp.SecureURL,
 		LinkFilm:      request.LinkFilm,
 		Year:          request.Year,
 		FilmID:        request.FilmID,
