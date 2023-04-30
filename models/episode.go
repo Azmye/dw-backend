@@ -6,7 +6,7 @@ type Episode struct {
 	ThumbnailFilm string `json:"thumbnail" form:"thumbnail" gorm:"type: varchar(255)"`
 	Year          int    `json:"year" form:"year"`
 	LinkFilm      string `json:"linkFilm" form:"link" gorm:"type: varchar(255)"`
-	Film          Film   `json:"film"`
+	Film          Film   `json:"film" gorm:"constraint:OnDelete:CASCADE"`
 	FilmID        int    `json:"film_id" `
 }
 
