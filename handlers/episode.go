@@ -82,7 +82,7 @@ func (h *handlerEpisode) CreateEpisode(c echo.Context) error {
 	request := episodedto.EpisodeRequest{
 		Title:         c.FormValue("title"),
 		ThumbnailFilm: dataFile,
-		LinkFilm:      c.FormValue("link"),
+		LinkFilm:      c.FormValue("linkFilm"),
 		Year:          year,
 		FilmID:        film_id,
 	}
